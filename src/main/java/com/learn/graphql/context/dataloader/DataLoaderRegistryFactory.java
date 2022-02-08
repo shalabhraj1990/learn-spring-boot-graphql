@@ -7,6 +7,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 import lombok.RequiredArgsConstructor;
 import org.dataloader.BatchLoaderEnvironment;
 import org.dataloader.DataLoader;
@@ -21,6 +23,9 @@ public class DataLoaderRegistryFactory {
 
   private final BalanceService balanceService;
   private final Executor balanceExecutor;
+  
+	private static final Executor balanceThreadPool = Executors
+			.newFixedThreadPool(Runtime.getRuntime().availableProcessors());  
 
   public DataLoaderRegistry create(String userId) {
     var registry = new DataLoaderRegistry();
@@ -28,12 +33,17 @@ public class DataLoaderRegistryFactory {
     return registry;
   }
 
+//  private DataLoader<UUID, BigDecimal> createBalanceDataLoader(String userId) {
+//    return DataLoader
+//        .newMappedDataLoader((Set<UUID> bankAccountIds, BatchLoaderEnvironment environment) ->
+//            CompletableFuture.supplyAsync(() ->
+//                    balanceService.getBalanceFor((Map) environment.getKeyContexts(), userId),
+//                balanceExecutor));
+//	  return null;
+//  }
   private DataLoader<UUID, BigDecimal> createBalanceDataLoader(String userId) {
-    return DataLoader
-        .newMappedDataLoader((Set<UUID> bankAccountIds, BatchLoaderEnvironment environment) ->
-            CompletableFuture.supplyAsync(() ->
-                    balanceService.getBalanceFor((Map) environment.getKeyContexts(), userId),
-                balanceExecutor));
-  }
+		return DataLoader.newMappedDataLoader((Set<UUID> bankAccountIds) -> CompletableFuture
+				.supplyAsync(() -> balanceService.getBalanceFor(bankAccountIds, userId), balanceThreadPool));
 
+	}
 }
