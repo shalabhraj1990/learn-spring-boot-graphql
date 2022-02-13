@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class BalanceService {
 
-	public Map<UUID, BigDecimal> getBalanceFor(Set<UUID> bankAccountIds, String userId) {
+	public Map<UUID, BigDecimal> getBalanceFor(Map<UUID,BankAccount> bankAccountIds, String userId) {
 		log.info("Requesting batch bank account ids: {} for user Id: {}", bankAccountIds, userId);
 		//return Map.of();
 		// Spring security context is propagated to dataloader threads (current

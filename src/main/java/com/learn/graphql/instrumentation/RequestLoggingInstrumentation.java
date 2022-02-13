@@ -10,6 +10,8 @@ import java.time.Duration;
 import java.time.Instant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -17,23 +19,25 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RequestLoggingInstrumentation extends SimpleInstrumentation {
 
-  private final Clock clock;
+	public static String CORRELATION_ID = "correlation_id";
+	private final Clock clock;
 
-  @Override
-  public InstrumentationContext<ExecutionResult> beginExecution(
-      InstrumentationExecutionParameters parameters) {
-    var start = Instant.now(clock);
-    log.info("Query: {} with variables: {}", parameters.getQuery(), parameters.getVariables());
-    return SimpleInstrumentationContext.whenCompleted((executionResult, throwable) -> {
-      // This callback will occur in the resolver thread.
+	@Override
+	public InstrumentationContext<ExecutionResult> beginExecution(InstrumentationExecutionParameters parameters) {
+		MDC.put(CORRELATION_ID, parameters.getExecutionInput().getExecutionId().toString());
+		var start = Instant.now(clock);
+		log.info("Query: {} with variables: {}", parameters.getQuery(), parameters.getVariables());
+		return SimpleInstrumentationContext.whenCompleted((executionResult, throwable) -> {
+			// This callback will occur in the resolver thread.
 
-      var duration = Duration.between(start, Instant.now(clock));
-      if (throwable == null) {
-        log.info("Completed successfully in: {}", duration);
-      } else {
-        log.warn("Failed in: {}", duration, throwable);
-      }
-    });
-  }
+			var duration = Duration.between(start, Instant.now(clock));
+			if (throwable == null) {
+				log.info("Completed successfully in: {}", duration);
+			} else {
+				log.warn("Failed in: {}", duration, throwable);
+			}
+			MDC.clear();
+		});
+	}
 
 }

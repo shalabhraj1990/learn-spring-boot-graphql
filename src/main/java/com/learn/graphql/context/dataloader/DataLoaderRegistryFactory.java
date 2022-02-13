@@ -33,17 +33,17 @@ public class DataLoaderRegistryFactory {
     return registry;
   }
 
-//  private DataLoader<UUID, BigDecimal> createBalanceDataLoader(String userId) {
-//    return DataLoader
-//        .newMappedDataLoader((Set<UUID> bankAccountIds, BatchLoaderEnvironment environment) ->
-//            CompletableFuture.supplyAsync(() ->
-//                    balanceService.getBalanceFor((Map) environment.getKeyContexts(), userId),
-//                balanceExecutor));
-//	  return null;
-//  }
   private DataLoader<UUID, BigDecimal> createBalanceDataLoader(String userId) {
-		return DataLoader.newMappedDataLoader((Set<UUID> bankAccountIds) -> CompletableFuture
-				.supplyAsync(() -> balanceService.getBalanceFor(bankAccountIds, userId), balanceThreadPool));
-
-	}
+    return DataLoader
+        .newMappedDataLoader((bankAccountIds,  environment) ->
+            CompletableFuture.supplyAsync(() ->
+                    balanceService.getBalanceFor((Map) environment.getKeyContexts(), userId),
+                balanceExecutor));
+	 
+  }
+//  private DataLoader<UUID, BigDecimal> createBalanceDataLoader(String userId) {
+//		return DataLoader.newMappedDataLoader((Set<UUID> bankAccountIds) -> CompletableFuture
+//				.supplyAsync(() -> balanceService.getBalanceFor(bankAccountIds, userId), balanceThreadPool));
+//
+//	}
 }

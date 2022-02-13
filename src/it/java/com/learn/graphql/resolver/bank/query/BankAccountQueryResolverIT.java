@@ -4,10 +4,9 @@ import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 
-import com.graphql.spring.boot.test.GraphQLTestTemplate;
-import io.micrometer.core.instrument.util.IOUtils;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +14,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
+
+import com.graphql.spring.boot.test.GraphQLTestTemplate;
+
+import io.micrometer.core.instrument.util.IOUtils;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = TestApplication.class)
 public class BankAccountQueryResolverIT {
